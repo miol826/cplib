@@ -1,0 +1,62 @@
+#!/usr/bin/ruby
+require 'open3'
+Max_Length = 100
+print 'Number of times to test: '
+T = gets.to_i
+print 'Testcase generator code: '
+Gen = gets.chomp
+print 'Test code 1: '
+Code1 = gets.chomp
+print 'Test code 2 (if none, press ENTER with nothing): '
+Code2 = gets.chomp
+
+T.times do
+  testcase, genst = Open3.capture2(Gen)
+  if genst != 0 then
+    puts "Generator caused error."
+    exit
+  end
+  if Code2 == "" then
+    out1, status1 = Open3.capture2(Code1, :stdin_data=>testcase)
+    unless status1 == 0
+      if testcase.size <= Max_Length then
+        puts "input:"
+        puts testcase
+        puts
+      else
+        puts "input too long"
+      end
+      if out1.size <= Max_Length then
+        puts "output:"
+        puts out1
+        puts
+      else
+        puts "output too long"
+      end
+      puts "status of #{Code1}: #{status1}"
+      break
+    end
+  else
+    out1, status1 = Open3.capture2(Code1, :stdin_data=>testcase)
+    out2, status2 = Open3.capture2(Code2, :stdin_data=>testcase)
+    unless status1 == 0 && status2 == 0
+      puts "input:"
+      puts testcase
+      puts
+      puts "status of #{Code1}: #{status1}"
+      puts "status of #{Code2}: #{status2}"
+      break
+    end
+    if out1 != out2 then
+      puts "input:"
+      puts testcase
+      puts
+      puts "output from #{Code1}:"
+      puts out1
+      puts
+      puts "output from #{Code2}:"
+      puts out2
+      break
+    end
+  end
+end

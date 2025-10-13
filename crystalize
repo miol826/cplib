@@ -1,0 +1,8 @@
+#!/bin/bash
+cr_filename=$(echo "$1" | sed 's/\.rb/\.cr/g')
+code=$(sed < "$1" -e 's/gets/read_line/g' -e 's/ *then//g' -e 's/\(.*while.*\) *do$/\1/g' -e 's/\&:/\&./g' -e 's/inject/reduce/g')
+echo "$code" > "$cr_filename"
+echo "${cr_filename} generated"
+if echo "$code" | grep -n '_[1-9]' > /dev/null; then
+    echo "number parameter detected"
+fi
